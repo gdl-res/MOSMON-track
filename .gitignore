@@ -1,0 +1,68 @@
+# --- Large / generated data (never commit per CLAUDE.md) ---
+data/raw_videos/*
+data/models/*
+data/metadata/*
+outputs/*
+!**/.gitkeep
+
+# Bulk archives
+*.zip
+
+# Video and model artifacts anywhere
+*.mp4
+*.MP4
+*.mov
+*.MOV
+*.m4v
+*.avi
+*.mkv
+*.pt
+*.onnx
+*.engine
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+build/
+dist/
+.eggs/
+.installed.cfg
+
+# --- Tooling caches ---
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# --- Env / editor ---
+.venv/
+venv/
+.env
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+
+# ffmpeg two-pass artifacts, dropped next to whatever invoked ffmpeg.
+ffmpeg2pass-*.log
+ffmpeg2pass-*.log.mbtree
+
+# Run logs, plus the driver's benchmark.pid / benchmark.logpath handles.
+logs/
+
+# Generated figures, reports, local experiment outputs, datasets and weights
+figures/generated/
+/reports/
+/experiments/
+/datasets/
+/weights/
+*.pdf
+
+# Local working notes (not part of the published code)
+CLAUDE.md
+HANDOFF.md
+*_Instructions.md

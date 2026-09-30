@@ -1,0 +1,6 @@
+path: datasets/mosquitoes/smart_roi  # edit to your local dataset root
+train: train/images
+val: valid/images
+
+nc: 4
+names: ['aedes aegypti', 'aedes albopictus', 'anopheles stephensi', 'culex pipiens']

@@ -1,0 +1,55 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mosmon-tracking"
+version = "0.1.0"
+description = "MOSMON-Larvae YOLO11 tracking and behaviour analysis pipeline"
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [{ name = "Giovanni Di Lorenzo" }]
+classifiers = [
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Python :: 3",
+  "Topic :: Scientific/Engineering :: Image Recognition",
+]
+requires-python = ">=3.10"
+dependencies = [
+  "ultralytics",
+  "opencv-python",
+  "numpy",
+  "pandas",
+  "pyarrow",
+  "scipy",
+  "matplotlib",
+  "tqdm",
+  "pyyaml",
+  "typer",
+  "jinja2",
+]
+
+[project.urls]
+Repository = "https://github.com/gdl-res/MOSMON-track"
+
+[project.optional-dependencies]
+dev = ["pytest", "ruff", "mypy"]
+pdf = ["weasyprint", "pypdf"]  # report.pdf export (reports.make_pdf / scripts/report_to_pdf.py)
+
+[project.scripts]
+mosmon = "mosmon_tracking.cli:app"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["E501"]

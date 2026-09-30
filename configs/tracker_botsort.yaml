@@ -1,0 +1,15 @@
+# Ultralytics BoT-SORT configuration, tuned for small dense larvae.
+# See https://docs.ultralytics.com/modes/track/ for field meanings.
+tracker_type: botsort
+track_high_thresh: 0.25
+track_low_thresh: 0.10
+new_track_thresh: 0.25
+track_buffer: 30
+match_thresh: 0.80
+fuse_score: true
+# BoT-SORT specific
+gmc_method: sparseOptFlow   # global motion compensation for camera/water motion
+proximity_thresh: 0.50
+appearance_thresh: 0.25
+with_reid: false            # ReID off by default; larvae lack distinctive appearance
+model: auto                 # required by Ultralytics >=8.4 BoT-SORT (ReID encoder)

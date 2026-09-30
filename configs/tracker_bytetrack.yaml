@@ -1,0 +1,9 @@
+# Ultralytics ByteTrack configuration, tuned for small dense larvae.
+# See https://docs.ultralytics.com/modes/track/ for field meanings.
+tracker_type: bytetrack
+track_high_thresh: 0.25   # first association confidence threshold
+track_low_thresh: 0.10    # second association confidence threshold
+new_track_thresh: 0.25    # threshold to spawn a new track
+track_buffer: 30          # frames to keep a lost track alive before deletion
+match_thresh: 0.80        # IoU matching threshold
+fuse_score: true          # fuse confidence into association cost

@@ -1,0 +1,18 @@
+# ByteTrack with its second association stage DISABLED.
+#
+# Setting track_low_thresh == track_high_thresh leaves the low-confidence pool
+# empty, so association reduces to a single Kalman + IoU + Hungarian pass. That
+# is the motion-only geometric baseline the benchmark needs, obtained from the
+# same implementation as the `bytetrack` arm — so the difference between the two
+# arms isolates the low-confidence recovery stage itself, with no cross-codebase
+# confound. Report it as "ByteTrack, single-stage", never as SORT: it is not the
+# Bewley et al. implementation and its Kalman state model is Ultralytics'.
+#
+# Every other field is identical to configs/tracker_bytetrack.yaml.
+tracker_type: bytetrack
+track_high_thresh: 0.25
+track_low_thresh: 0.25    # == high: second association stage is a no-op
+new_track_thresh: 0.25
+track_buffer: 30
+match_thresh: 0.80
+fuse_score: true

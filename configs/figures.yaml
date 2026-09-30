@@ -1,0 +1,71 @@
+# Inputs and plotting parameters for the manuscript figure scripts
+# (scripts/figures/fig0*.py). Every path used by a figure script is resolved
+# from here, so no user-specific absolute path lives inside a script.
+#
+# Only `paths.mosmon_outputs` normally needs editing: the four derived
+# locations default to the standard layout underneath it.
+
+paths:
+  # Root of the tracking pipeline's output tree.
+  mosmon_outputs: "outputs"
+  # Leave null to derive from mosmon_outputs; set to override.
+  full_eval: null            # <mosmon_outputs>/full_eval
+  summary_table: null        # <mosmon_outputs>/full_eval_summary_table.csv
+  species_analysis: null     # <mosmon_outputs>/species_analysis
+  dual_reanalysis: null      # <mosmon_outputs>/dual_reanalysis
+  tracker_benchmark: null    # <mosmon_outputs>/tracker_benchmark
+  # Where the figures are written (relative paths resolve from the repo root).
+  output_dir: "figures/generated"
+
+# Files larger than this are recorded by size+mtime instead of being hashed,
+# to keep a figure rerun from re-reading hundreds of GB of video.
+hash_max_bytes: 268435456
+
+fig03:
+  # Density percentiles targeted by panel (a): low / median / high.
+  density_percentiles: [10, 50, 90]
+  # Processed frames of trailing history drawn behind each box in panel (a).
+  trail_frames: 15
+  # Cap on the number of track-ID labels drawn, so the dense panel stays legible.
+  max_labels: 12
+  # Panel (c): recordings below this coverage (%) are called out individually.
+  low_coverage_pct: 97.0
+  # Optional manual frame overrides, recorded in the metadata sidecar when used:
+  #   overrides:
+  #     median: {run: "<run id>", frame_idx: 4321}
+  overrides: {}
+
+fig04:
+  # Permutation draws regenerated per validation scheme (seeded; must reproduce
+  # the null mean/p95/p stored in classification_results.json).
+  n_permutations: 200
+  # Features shown in panel (d).
+  top_features: 8
+
+fig05:
+  # Dual-container run used for panels (a)-(c). Null selects the recording whose
+  # divider estimate is closest to its manually verified value, deterministically.
+  representative_run: null
+  occupancy_bins_x: 192
+  occupancy_bins_y: 108
+  # A track joins a compartment only if this fraction of its observations stay
+  # on one side of the divider.
+  purity_threshold: 0.95
+  max_tracks_plotted: 300
+  top_features: 10
+
+fig06:
+  # Metric plotted against crowding in panels (b)-(d). The density axis is
+  # always the SHARED detection density, which is identical for every arm.
+  density_metric_b: identity_agreement_mean
+  density_metric_c: fragments_per_object
+  density_metric_d: median_track_duration_s
+  # Draw a fitted trend only when there are enough videos for it to mean
+  # anything; below this a trend line reads as a claim the data cannot support.
+  min_videos_for_trend: 8
+
+fig07:
+  # Descriptors shown in the stability panel, most stable first.
+  top_features: 12
+  # Balanced-accuracy schemes compared across arms, in panel order.
+  schemes: [video_lovo_ba, camera_out_ba, session_out_ba, track_level_ba]

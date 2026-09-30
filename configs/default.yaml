@@ -1,0 +1,138 @@
+project:
+  name: mosmon_larvae_behaviour
+  random_seed: 42
+
+input:
+  video_extensions: [".mp4", ".mov", ".m4v", ".avi", ".mkv"]
+  recursive: true
+
+model:
+  paths: []
+  imgsz: 1920
+  conf: 0.15
+  iou: 0.5
+  device: "auto"
+  half: true
+  classes: null
+  agnostic_nms: false   # true = merge overlapping boxes across classes (de-duplicate)
+  tiling:               # tiled inference for native-resolution small objects (see README §12)
+    enabled: false      # true = detect tile-by-tile at 1:1 pixels, then track (slower, higher recall)
+    tile_size: 640      # 1:1 pixel tile size; match the model's training tile size
+    overlap: 0.10       # fraction of overlap between adjacent tiles
+    merge_iou: null     # class-agnostic NMS IoU across tile seams (null = use model.iou)
+    batch: 8            # tiles per detector forward pass
+    min_area_frac: 0.0  # drop detections smaller than this fraction of tile area (0 = keep all)
+
+tracker:
+  type: bytetrack
+  yaml: configs/tracker_bytetrack.yaml
+  persist: true
+  max_gap_frames: 15
+  min_track_length_frames: 10
+  min_mean_confidence: 0.10
+
+video:
+  frame_stride: 1
+  max_frames: null
+  save_debug_video: false
+  debug_video_fps: 20
+  debug_video_max_frames: 300   # cap debug clip length (null = all processed frames)
+  debug_video_scale: 0.35       # downscale factor for the debug video
+  debug_video_trail: 20         # past centers drawn as a fading trail
+  save_tracking_video: false    # full annotated video: all frames, all tracks, full length
+  tracking_video_fps: null      # null = use the source video fps
+  tracking_video_scale: 1.0     # 1.0 = full resolution (large files for high-res sources)
+  tracking_video_trail: 30      # past centers drawn as a fading trail
+  save_heatmap_video: false     # occupancy heatmap accumulating over time on a frame
+  heatmap_video_fps: 20         # playback fps of the heatmap video
+  heatmap_video_scale: 0.5      # downscale factor for the heatmap video
+  heatmap_video_max_frames: 300 # cap output frames (null = all; histogram still accumulates all)
+  heatmap_video_alpha: 0.6      # heatmap opacity over the background frame
+
+calibration:
+  enabled: false
+  pixels_per_mm: null
+  container_width_cm: null
+  container_height_cm: null
+  homography_path: null
+
+postprocess:
+  interpolate_gaps: true
+  interpolation_max_gap_frames: 15
+  smoothing: savgol
+  smoothing_window_frames: 9
+  smoothing_polyorder: 2
+  remove_outlier_jumps: true
+  max_speed_px_s: null
+
+regions:
+  border_margin_fraction: 0.10
+  center_roi_fraction: 0.50
+  custom_rois_path: null
+  dual_container_split_x_fraction: null
+
+heatmaps:
+  bins_x: 128
+  bins_y: 72
+  normalize: probability
+  per_track: false
+  per_class: true
+  per_time_window_s: null
+
+features:
+  compute_pairwise: true
+  pairwise_max_tracks_per_frame: 300
+  nearest_neighbor_k: 1
+  activity_speed_threshold_px_s: 5.0
+  freezing_speed_threshold_px_s: 1.0
+  burst_speed_quantile: 0.90
+  export_population_timeseries: true   # write population_timeseries.parquet (per-frame metrics)
+
+reports:
+  make_html: true
+  make_markdown: true
+  make_pdf: true                     # also write report.pdf alongside report.html (needs: pip install '.[pdf]')
+  save_plots: true
+  export_mot: true                 # write tracks_mot.txt (MOTChallenge format) + seqinfo.ini
+  mot_include_interpolated: true   # include interpolated rows in the MOT export
+  export_trajectories_geojson: true  # write trajectories.geojson (one feature per track)
+
+fair:
+  enabled: true
+  hash_inputs: true           # sha256 the input video/model (slow for very large videos)
+  license: "https://creativecommons.org/licenses/by/4.0/"
+  license_name: "CC-BY-4.0"
+  creator_name: null          # e.g. "Giuseppe Di Lorenzo"
+  creator_orcid: null         # e.g. "https://orcid.org/0000-0000-0000-0000"
+  affiliation: null
+  publisher: null
+  project_url: null
+  dataset_keywords:
+    - mosquito larvae
+    - MOSMON
+    - object tracking
+    - behaviour analysis
+    - YOLO11
+    - trajectory
+
+# Cross-video species-discrimination analysis (`mosmon species-analysis`).
+species_analysis:
+  min_track_duration_s: 3.0        # shorter tracks carry no reliable shape-of-motion
+  apply_qc_gate: true
+  max_duplicate_track_proxy: 0.15  # crowding-driven over-counting gate
+  min_coverage_pct: 95.0           # % of processed frames with detections
+  drop_duplicate_inputs: true      # sha256-identical source videos
+  drop_conflicting_duplicates: true  # both members of a contradictory-label pair
+  exclude_dual_container: true     # handled by the paired within-video contrast
+  max_tracks_per_video: 4000       # seeded subsample, bounds feature-extraction cost
+  classifier_max_tracks_per_video: 1000
+  msd_max_lag: 20
+  autocorr_max_lag: 5
+  pause_speed_bl_s: 0.25           # body-lengths/s below which a larva counts as paused
+  density_match_min: 4.0           # band where all species are represented
+  density_match_max: 30.0
+  n_permutations: 200
+  logistic_l2: 0.05                # L2 on standardised features (mean-NLL scale)
+  logistic_l2_grid: [0.01, 0.05, 0.2, 1.0]
+  logistic_max_iter: 200
+  fdr_alpha: 0.05

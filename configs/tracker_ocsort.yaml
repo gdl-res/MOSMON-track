@@ -1,0 +1,24 @@
+# Ultralytics OC-SORT, matched to the MOSMON ByteTrack/BoT-SORT arms.
+#
+# Observation-centric association: re-scores matches against the observed track
+# history rather than the Kalman prediction alone, which is the mechanism worth
+# testing on larvae (rapid turns, stop/start motion, direction reversals).
+#
+# The first six fields are held identical to the other arms so the comparison is
+# about the association mechanism, not about threshold tuning. Only the OC-SORT
+# specifics below are its own, and they are the published defaults.
+#
+# use_byte stays false: the low-confidence second pass is what the `bytetrack`
+# arm tests, and enabling it here would confound the two mechanisms.
+tracker_type: ocsort
+track_high_thresh: 0.25
+track_low_thresh: 0.10
+new_track_thresh: 0.25
+track_buffer: 30
+match_thresh: 0.80
+fuse_score: true
+
+# OC-SORT specific (published defaults, unmodified)
+delta_t: 3          # frames over which the velocity direction is estimated
+inertia: 0.2        # weight of the velocity-consistency term in the cost
+use_byte: false     # keep the low-confidence stage exclusive to the bytetrack arm

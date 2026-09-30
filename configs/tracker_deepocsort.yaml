@@ -1,0 +1,40 @@
+# Ultralytics Deep OC-SORT — the appearance arm of the benchmark.
+#
+# IMPORTANT (fairness): `model: auto` is NOT usable here. It resolves to a
+# pass-through over detector backbone features that only exist inside the
+# Ultralytics predict loop; when replaying a frozen detection table there are no
+# such features and ReID would silently do nothing. An explicit encoder path is
+# therefore required, and the runner refuses to label this arm "appearance" if
+# the encoder fails to load.
+#
+# The encoder is a GENERIC, off-the-shelf ReID backbone. No larva-specific ReID
+# is trained: the experiment tests whether standard appearance cues carry any
+# individual identity information for visually near-identical larvae.
+tracker_type: deepocsort
+track_high_thresh: 0.25
+track_low_thresh: 0.10
+new_track_thresh: 0.25
+track_buffer: 30
+match_thresh: 0.80
+fuse_score: true
+
+# OC-SORT specifics — identical to configs/tracker_ocsort.yaml, so the
+# difference between the two arms is appearance and GMC only.
+delta_t: 3
+inertia: 0.2
+use_byte: false
+
+# Deep OC-SORT specifics
+gmc_method: sparseOptFlow   # match the botsort arm's camera/water-motion handling
+with_reid: true
+# A bare asset name is looked up in weights/reid/ first (see the adapter's
+# REID_SEARCH_DIRS) and only fetched if no local copy exists, so repeated runs
+# do not re-download it into the working directory.
+model: yolo26s-reid.onnx
+# Tried if the above fails to load. A classification backbone whose penultimate
+# features stand in as embeddings - weaker than a ReID-trained encoder, but it
+# runs on the torch/CUDA stack already present and needs no ONNX runtime.
+reid_fallback: weights/reid/yolo26n-cls.pt
+proximity_thresh: 0.50
+appearance_thresh: 0.25     # matched to configs/tracker_botsort.yaml
+alpha_fixed_emb: 0.95

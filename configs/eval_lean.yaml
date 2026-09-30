@@ -1,0 +1,96 @@
+project:
+  name: mosmon_larvae_behaviour
+  random_seed: 42
+
+input:
+  video_extensions: [".mp4", ".mov", ".m4v", ".avi", ".mkv"]
+  recursive: true
+
+# Lean evaluation profile: identical detector/tracker settings to eval.yaml, but
+# the frame-heavy *extra* outputs are turned off to fit a tight disk and shave
+# time. Keeps the analytical core: detections/tracks parquet, track summaries,
+# heatmaps, population time-series, plots, and the HTML/MD report.
+#
+# Dropped vs eval.yaml: per-run debug video, MOT export, trajectory GeoJSON, and
+# input hashing (a time saving, not disk). ~30 GB output instead of ~43 GB.
+# Re-add any later from the existing tracks_clean.parquet via `analyse-tracks`.
+model:
+  paths: []
+  imgsz: 1920
+  conf: 0.15
+  iou: 0.7
+  device: "auto"
+  half: true
+  classes: null
+  agnostic_nms: true
+
+tracker:
+  type: botsort
+  yaml: configs/tracker_botsort.yaml
+  persist: true
+  max_gap_frames: 15
+  min_track_length_frames: 10
+  min_mean_confidence: 0.10
+
+video:
+  frame_stride: 2
+  max_frames: null
+  save_debug_video: false        # off (lean): no per-run annotated clip
+  save_tracking_video: false
+  save_heatmap_video: false
+
+calibration:
+  enabled: false
+
+postprocess:
+  interpolate_gaps: true
+  interpolation_max_gap_frames: 15
+  smoothing: savgol
+  smoothing_window_frames: 9
+  smoothing_polyorder: 2
+  remove_outlier_jumps: true
+  max_speed_px_s: null
+
+regions:
+  border_margin_fraction: 0.10
+  center_roi_fraction: 0.50
+
+heatmaps:
+  bins_x: 128
+  bins_y: 72
+  normalize: probability
+  per_class: true
+
+features:
+  compute_pairwise: true
+  pairwise_max_tracks_per_frame: 300
+  nearest_neighbor_k: 1
+  activity_speed_threshold_px_s: 5.0
+  freezing_speed_threshold_px_s: 1.0
+  burst_speed_quantile: 0.90
+  export_population_timeseries: true   # kept: small (1 row/frame), analytically useful
+
+reports:
+  make_html: true
+  make_markdown: true
+  save_plots: true
+  export_mot: false                    # off (lean): ~6 KB/frame
+  export_trajectories_geojson: false   # off (lean): ~12 KB/frame, the biggest extra
+
+fair:
+  enabled: true
+  hash_inputs: false   # off (lean): skip sha256 of 238 GB of input (time, not disk)
+  license: "https://creativecommons.org/licenses/by/4.0/"
+  license_name: "CC-BY-4.0"
+  creator_name: null
+  creator_orcid: null
+  affiliation: null
+  publisher: null
+  project_url: null
+  dataset_keywords:
+    - mosquito larvae
+    - MOSMON
+    - object tracking
+    - behaviour analysis
+    - YOLO11
+    - trajectory

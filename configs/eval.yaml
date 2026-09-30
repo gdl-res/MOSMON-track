@@ -1,0 +1,95 @@
+project:
+  name: mosmon_larvae_behaviour
+  random_seed: 42
+
+input:
+  video_extensions: [".mp4", ".mov", ".m4v", ".avi", ".mkv"]
+  recursive: true
+
+model:
+  paths: []
+  imgsz: 1920
+  conf: 0.15
+  iou: 0.7
+  device: "auto"
+  half: true
+  classes: null
+  agnostic_nms: true    # de-duplicate cross-class boxes (decisive: dup 0.74->0.015)
+
+tracker:
+  type: botsort
+  yaml: configs/tracker_botsort.yaml
+  persist: true
+  max_gap_frames: 15
+  min_track_length_frames: 10
+  min_mean_confidence: 0.10
+
+video:
+  frame_stride: 2       # 15 fps effective
+  max_frames: null
+  save_debug_video: true
+  debug_video_fps: 20
+  debug_video_max_frames: 300   # cap debug clip length (null = all processed frames)
+  debug_video_scale: 0.35       # downscale factor for the debug video
+  debug_video_trail: 20         # past centers drawn as a fading trail
+
+calibration:
+  enabled: false
+  pixels_per_mm: null
+  container_width_cm: null
+  container_height_cm: null
+  homography_path: null
+
+postprocess:
+  interpolate_gaps: true
+  interpolation_max_gap_frames: 15
+  smoothing: savgol
+  smoothing_window_frames: 9
+  smoothing_polyorder: 2
+  remove_outlier_jumps: true
+  max_speed_px_s: null
+
+regions:
+  border_margin_fraction: 0.10
+  center_roi_fraction: 0.50
+  custom_rois_path: null
+  dual_container_split_x_fraction: null
+
+heatmaps:
+  bins_x: 128
+  bins_y: 72
+  normalize: probability
+  per_track: false
+  per_class: true
+  per_time_window_s: null
+
+features:
+  compute_pairwise: true
+  pairwise_max_tracks_per_frame: 300
+  nearest_neighbor_k: 1
+  activity_speed_threshold_px_s: 5.0
+  freezing_speed_threshold_px_s: 1.0
+  burst_speed_quantile: 0.90
+
+reports:
+  make_html: true
+  make_markdown: true
+  save_plots: true
+
+fair:
+  enabled: true
+  hash_inputs: true           # sha256 the input video/model (slow for very large videos)
+  license: "https://creativecommons.org/licenses/by/4.0/"
+  license_name: "CC-BY-4.0"
+  creator_name: null          # e.g. "Giuseppe Di Lorenzo"
+  creator_orcid: null         # e.g. "https://orcid.org/0000-0000-0000-0000"
+  affiliation: null
+  publisher: null
+  project_url: null
+  dataset_keywords:
+    - mosquito larvae
+    - MOSMON
+    - object tracking
+    - behaviour analysis
+    - YOLO11
+    - trajectory

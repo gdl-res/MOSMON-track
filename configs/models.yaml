@@ -1,0 +1,14 @@
+# Registry of YOLO11 detection models to use for tracking / comparison.
+# Add one entry per trained model. `path` may be absolute or relative to repo root.
+# `classes` is optional documentation of the model's class index -> name mapping;
+# the pipeline always trusts model.names at runtime (see metadata.canonical_species).
+models:
+  - name: yolo11x_overlap_tiling
+    path: weights/mosmon_yolov11x_overlap_tiling_best_v1.pt
+    notes: >-
+      Released weight (download separately; see README). Trained with the overlapping-tiling pipeline in training/
+      (640px tiles, 10% overlap; Mode 6 lineage = overlapping + dfl=3.0).
+      Pairs naturally with model.tiling.enabled=true for native-res inference.
+#   - name: yolo11m_mosmon
+#     path: data/models/yolo11m_best.pt
+#     notes: "larger backbone"

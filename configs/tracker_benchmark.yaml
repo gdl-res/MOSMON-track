@@ -1,0 +1,127 @@
+# Multi-tracker benchmark profile.
+#
+# The point of this profile is the FIXED DETECTOR: one detection-only pass is run
+# per video and every tracker arm replays that same table, so any difference
+# between arms is association and nothing else.
+#
+# Detector settings match configs/eval.yaml exactly EXCEPT:
+#   conf    0.15 -> 0.05   so each tracker applies its own internal thresholds
+#                          rather than inheriting BoT-SORT's. Filtering this pool
+#                          at >=0.15 reproduces the eval.yaml pool, because NMS
+#                          ranks by score and a low box never suppresses a high one.
+#   max_det  300 -> 3000   the Ultralytics default truncated the densest frames
+#                          (this corpus reaches ~350 larvae/frame).
+#
+# Output profile is lean: the per-arm run folders keep the analytical core that
+# species-analysis needs (tracks_clean, track_summary, video_summary, qc_report,
+# population_timeseries) and drop debug video, plots, heatmap images and GeoJSON.
+
+project:
+  name: mosmon_tracker_benchmark
+  random_seed: 42
+
+input:
+  video_extensions: [".mp4", ".mov", ".m4v", ".avi", ".mkv"]
+  recursive: true
+
+model:
+  paths: []
+  imgsz: 1920
+  conf: 0.05
+  iou: 0.7
+  device: "auto"
+  half: true
+  classes: null
+  agnostic_nms: true
+  max_det: 3000
+
+# Default arm; the benchmark runner overrides this per arm from `benchmark.arms`.
+tracker:
+  type: botsort
+  yaml: configs/tracker_botsort.yaml
+  persist: true
+  max_gap_frames: 15
+  min_track_length_frames: 10
+  min_mean_confidence: 0.10
+
+benchmark:
+  # Confidence floor the *detection cache* is written at. Kept separate from
+  # model.conf so a re-analysis cannot silently change the cached pool.
+  detection_conf: 0.05
+  # Applied to the cached pool before it reaches a tracker.
+  #
+  # 0.10 is not a tuning choice and does not favour any arm: every arm's
+  # `track_low_thresh` is 0.10 and Ultralytics splits detections with a strict
+  # `scores > track_low_thresh`, so a detection at or below 0.10 is discarded
+  # internally by all five and can change nothing. fp16(0.10) = 0.09998 sits just
+  # below that cut, so this filter is a strict superset of what any tracker uses.
+  #
+  # It matters because the corpus is far denser at conf 0.05 than it looks: the
+  # dense Culex videos carry ~1725 detections/frame, of which ~700 are below 0.10
+  # pure noise. Those cost I/O for every arm and a ReID crop each for deepocsort
+  # (init_track runs the encoder on BOTH confidence splits), for no effect at all.
+  #
+  # Set to null to hand every arm the untouched 0.05 pool.
+  replay_conf: 0.10
+  # Confidence at which the BoT-SORT reproduction gate filters the pool, so it
+  # sees the same detections the 2026-08 full eval saw.
+  reference_conf: 0.15
+  arms:
+    bytetrack_iou:  configs/tracker_bytetrack_iou.yaml
+    bytetrack:      configs/tracker_bytetrack.yaml
+    ocsort:         configs/tracker_ocsort.yaml
+    botsort:        configs/tracker_botsort.yaml
+    deepocsort:     configs/tracker_deepocsort.yaml
+  # Arms to treat as the reference when reporting relative differences.
+  reference_arm: botsort
+
+video:
+  frame_stride: 2
+  max_frames: null
+  save_debug_video: false
+  save_tracking_video: false
+  save_heatmap_video: false
+
+calibration:
+  enabled: false
+
+postprocess:
+  interpolate_gaps: true
+  interpolation_max_gap_frames: 15
+  smoothing: savgol
+  smoothing_window_frames: 9
+  smoothing_polyorder: 2
+  remove_outlier_jumps: true
+  max_speed_px_s: null
+
+regions:
+  border_margin_fraction: 0.10
+  center_roi_fraction: 0.50
+
+heatmaps:
+  bins_x: 128
+  bins_y: 72
+  normalize: probability
+  per_class: true
+
+features:
+  compute_pairwise: true
+  pairwise_max_tracks_per_frame: 300
+  nearest_neighbor_k: 1
+  activity_speed_threshold_px_s: 5.0
+  freezing_speed_threshold_px_s: 1.0
+  burst_speed_quantile: 0.90
+  export_population_timeseries: true
+
+reports:
+  make_html: false
+  make_markdown: true
+  save_plots: false
+  export_mot: false
+  export_trajectories_geojson: false
+
+fair:
+  enabled: true
+  hash_inputs: true
+  license: "https://creativecommons.org/licenses/by/4.0/"
+  license_name: "CC-BY-4.0"
