@@ -1,11 +1,17 @@
 # MOSMON-Larvae Tracking & Behaviour Analysis
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23065477.svg)](https://doi.org/10.5281/zenodo.23065477)
+
 A command-line tool that takes **videos of mosquito larvae** and automatically
 produces **tracks, movement measurements, heatmaps, and a report** for each video.
 
 You do not need to be a programmer to use it. If you can open a terminal and copy
 and paste a few commands, you can run the whole pipeline. This README explains
 every step, every command, every option, and every file it produces.
+
+**Data:** the tracks, behaviour analyses and tracker benchmark for the 66 MOSMON-Larvae
+videos, together with a snapshot of this code, are archived on Zenodo:
+[doi:10.5281/zenodo.23065477](https://doi.org/10.5281/zenodo.23065477).
 
 ---
 
