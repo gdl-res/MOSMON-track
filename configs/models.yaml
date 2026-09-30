@@ -6,8 +6,9 @@ models:
   - name: yolo11x_overlap_tiling
     path: weights/mosmon_yolov11x_overlap_tiling_best_v1.pt
     notes: >-
-      Released weight (download separately; see README). Trained with the overlapping-tiling pipeline in training/
-      (640px tiles, 10% overlap; Mode 6 lineage = overlapping + dfl=3.0).
+      Released weight (download separately; see README). YOLO11x fine-tuned on
+      overlapping 640px tiles (training/), imgsz 640, 128 epochs, dfl 1.5, as recorded
+      in the checkpoint's train_args.
       Pairs naturally with model.tiling.enabled=true for native-res inference.
 #   - name: yolo11m_mosmon
 #     path: data/models/yolo11m_best.pt

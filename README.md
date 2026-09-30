@@ -462,6 +462,7 @@ model:
   half: true                      # use faster 16-bit maths on GPU
   classes: null                   # null = all species; or e.g. [0,2] to keep only some
   agnostic_nms: false             # true = merge overlapping boxes ACROSS classes (de-duplicate)
+  max_det: 3000                   # max detections kept per frame
 
 tracker:
   type: bytetrack                 # "bytetrack" or "botsort"
@@ -552,6 +553,9 @@ fair:                             # see section 13
 
 **The settings you will change most often:**
 
+- `model.max_det` — how many detections are kept per frame. Keep it high (3000): dense
+  videos produce ~800 candidate boxes per frame, and Ultralytics' own default of 300 silently
+  drops the rest. `configs/eval.yaml` pins 300 only to reproduce the published evaluation.
 - `model.agnostic_nms` — set **true** for this dataset; it removes duplicate boxes where the same larva is detected as two species at once (big quality win, see section 10).
 - `model.conf` — lower it if larvae are missed; raise it if you get false detections.
 - `model.imgsz` — raise toward native resolution for tiny larvae (uses more GPU memory).
@@ -1103,7 +1107,7 @@ Verified on a real video: 6890 boxes, identical coordinates. The comparison must
 Ultralytics' semantics (strict `>` against an **fp16** threshold), which
 `benchmark.detections_io.apply_conf_floor` does.
 
-`max_det` is raised to 3000. Ultralytics defaults to **300**, and the repo never set it, so
+`max_det` is raised to 3000. Ultralytics defaults to **300**, and earlier versions of this pipeline never passed it to the tracker, so
 an earlier full evaluation truncated any frame with more than 300 candidate detections to
 the top 300 by score — precisely in the dense regime a crowding analysis is about.
 `check_detection_table` probes for the signature (a spike at exactly `max_det`).

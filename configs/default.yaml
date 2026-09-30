@@ -15,6 +15,7 @@ model:
   half: true
   classes: null
   agnostic_nms: false   # true = merge overlapping boxes across classes (de-duplicate)
+  max_det: 3000         # detections kept per frame (Ultralytics' own default of 300 truncates dense scenes)
   tiling:               # tiled inference for native-resolution small objects (see README §12)
     enabled: false      # true = detect tile-by-tile at 1:1 pixels, then track (slower, higher recall)
     tile_size: 640      # 1:1 pixel tile size; match the model's training tile size

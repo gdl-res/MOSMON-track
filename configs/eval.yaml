@@ -15,6 +15,7 @@ model:
   half: true
   classes: null
   agnostic_nms: true    # de-duplicate cross-class boxes (decisive: dup 0.74->0.015)
+  max_det: 300          # as in the published 66-video run (it truncated the densest videos); use 3000 for new runs
 
 tracker:
   type: botsort

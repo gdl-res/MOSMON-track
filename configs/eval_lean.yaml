@@ -23,6 +23,7 @@ model:
   half: true
   classes: null
   agnostic_nms: true
+  max_det: 300          # as in the published 66-video run (it truncated the densest videos); use 3000 for new runs
 
 tracker:
   type: botsort

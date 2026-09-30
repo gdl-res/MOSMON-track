@@ -58,9 +58,9 @@ class ModelConfig:
     half: bool = True
     classes: list[int] | None = None
     agnostic_nms: bool = False  # merge overlapping boxes across classes (de-duplicate)
-    # Ultralytics defaults to 300 detections/frame. MOSMON scenes reach ~350 larvae,
-    # so the default silently truncates the densest frames to the top-300 by score.
-    max_det: int = 300
+    # Ultralytics defaults to 300 detections/frame. Dense MOSMON scenes produce ~800
+    # candidate boxes per frame, so that default silently truncates them to the top-300.
+    max_det: int = 3000
     tiling: TilingConfig = field(default_factory=TilingConfig)
 
 
